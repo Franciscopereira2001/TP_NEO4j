@@ -1,0 +1,1 @@
+CREATE CONSTRAINT username_unique FOR (user:User) REQUIRE user.username IS UNIQUE
