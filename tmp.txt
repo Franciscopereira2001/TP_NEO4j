@@ -1,5 +1,0 @@
-CREATE (w:Wine {name:"Prancing wolf", style: "ice wine"})
-
-CREATE (p:Publication {name: "relacao"})
-
-MATCH (p:Publication {name: "relacao"}),(w:Wine {name:"Prancing wolf", style: "ice wine"}) CREATE (p)-[r:reported_on]->(w)

@@ -1,6 +1,6 @@
 from importlib import reload
 import sys, random, datetime
-from carrega_cidades import *
+from lib.carrega_cidades import *
 
 def gen_elemento(prefix, n):
     r = []
