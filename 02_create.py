@@ -30,6 +30,8 @@ def main():
     roles = ["Administrator", "Utilizador", "Convidado"]
     paises = ["Portugal"]
 
+    print("MATCH (n) DETACH DELETE n")
+    
     for pais in paises:
         print(f"CREATE({pais}:Country {{name:'{pais}'}})")
 
@@ -40,15 +42,16 @@ def main():
         for cidade in c.get_cidades(distrito):
             if cidade['name'] != distrito['name']:
                 print(f"CREATE({cidade['name']}:Cities {{name:'{cidade['name']}'}})")
-            print(f"CREATE({cidade['name']})-[:CITY_IN]->({distrito['name']})")
+            
+            print(f"MATCH (a:Cities {{name: '{cidade['name']}'}}),(b:Cities {{name: '{distrito['name']}'}}) CREATE(a)-[:CITY_IN]->(b)")
 
-        print(f"CREATE({distrito['name']})-[:DISTRICT_IN]->(Portugal) ")
+        print(f"MATCH (a:Cities {{name: '{distrito['name']}'}}),(b:Country {{name: 'Portugal'}}) CREATE(a)-[:DISTRICT_IN]->(b)")
         
     # Enderecos
     for addr in enderecos:
         cidade = c.get_cidade_random()
         print(f'CREATE({addr}:Address {{name:"{addr}", rua:"{addr}", nr:"{addr}"}})')
-        print(f'CREATE({addr})-[:ADDR_IN]->({cidade["name"]})')
+        print(f"MATCH (a:Address {{name:'{addr}', rua:'{addr}', nr:'{addr}'}}),(b:Cities {{name: '{cidade['name']}'}}) CREATE(a)-[:ADDR_IN]->(b)")
     
     # roles
     for role in roles:
@@ -58,7 +61,7 @@ def main():
     for user in users:
         print(f'CREATE({user}:User {{name:"{user}", email:"{user}@user.com", username:"{user}", password:"{user}", enabled:true}})')
         role = random.choices(roles)[0]
-        print(f'CREATE ({user})-[:ROLE_IN]->({role})')
+        print(f"MATCH (a:User {{username: '{user}'}}),(b:Role {{name: '{role}'}}) CREATE(a)-[:ROLE_IN]->(b)")
         
     # Parks
     enderecos_tmp = enderecos
@@ -69,9 +72,10 @@ def main():
         print(f'CREATE({park}:Parkings {{name:"{park}",latitude:{lat}, longitude:{long}, enabled:true}})')
         addr = random.choices(enderecos_tmp)[0]
         enderecos_tmp.remove(addr)
-        print(f'CREATE ({park})-[:LOCATED_IN]->({addr})')
+        print(f"MATCH (a:Parkings {{name: '{park}'}}),(b:Address {{name: '{addr}'}}) CREATE(a)-[:LOCATED_IN]->(b)")
         print(f'CREATE({park}_occupation:Occupation {{name:"{park}_o",percentage: {random.choices(range(100))}, last_updated_min:0}})')
-        print(f'CREATE ({park})-[:OCCUPATION_IN]->({park}_occupation)')
+        print(f"MATCH (a:Parkings {{name: '{park}'}}),(b:Occupation {{name: '{park}_o'}}) CREATE(a)-[:OCCUPATION_IN]->(b)")
+        
         saved_parks.append({
             "park": park,
             "addr": addr
@@ -81,14 +85,20 @@ def main():
     for order in orders:
         print(f'CREATE({order}:Order {{name:"{order}",time:timestamp(), arrival:datetime("{gen_data()}")}})')
         saved_park = random.choices(saved_parks)[0]
-        print(f'CREATE ({order})-[:SEARCH_IN]->({saved_park["addr"]})')
+        
+        print(f"MATCH (a:Order {{name: '{order}'}}),(b:Address {{name: '{saved_park['addr']}'}}) CREATE(a)-[:SEARCH_IN]->(b)")
+        
         user = random.choices(users)[0]
-        print(f'CREATE ({user})-[:RESERVE_IN]->({order})')
-        print(f'CREATE ({order})-[:RESERVE_IN]->({saved_park["park"]})')
+        print(f"MATCH (a:User {{name: '{user}'}}),(b:Order {{name: '{order}'}}) CREATE(a)-[:RESERVE_IN]->(b)")
+        
+        print(f"MATCH (a:Order {{name: '{order}'}}),(b:Occupation {{name: '{saved_park['park']}_o'}}) CREATE(a)-[:RESERVE_IN]->(b)")
+                
         print(f'CREATE(Response_{order}:Response {{name:"Response_{order}", time:timestamp(), response:{random.choice(["true", "false"])}}})')
-        print(f'CREATE (Response_{order})-[:RESPONSE_IN]->({order})')
+        
+        print(f"MATCH (a:Response {{name:'Response_{order}'}}),(b:Order {{name: '{order}'}}) CREATE(a)-[:RESPONSE_IN]->(b)")
+        
         print(f'Create(Review_{order}:Review {{name:"Review_{order}", positiva: {random.choice(["true", "false"])}, descricao: "ok"}})')
-        print(f'CREATE (Review_{order})-[:REVIEW_IN]->({order})')
+        print(f"MATCH (a:Review {{name:'Review_{order}'}}),(b:Order {{name: '{order}'}}) CREATE(a)-[:REVIEW_IN]->(b)")
         if user in order_per_user:
             order_per_user[user].append(order)
         else:
@@ -98,7 +108,7 @@ def main():
     for _, orders in order_per_user.items():
         for order in orders:
             if last != None:
-                print(f'CREATE ({last})-[:PREVIOUS_IN]->({order})')
+                print(f"MATCH (a:Order {{name: '{last}'}}),(b:Order {{name: '{order}'}}) CREATE(a)-[:PREVIOUS_IN]->(b)")
             last = order
                 
             
