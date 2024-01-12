@@ -1,1 +1,0 @@
-echo "MATCH (aveiro:Cities {name 'Aveiro'}) RETURN aveiro" | python .\neo4j_console.py
