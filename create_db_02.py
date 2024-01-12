@@ -88,6 +88,7 @@ def main():
         graph.run(f"MATCH (a:Address {{name:'{addr}', rua:'{addr}', nr:'{addr}'}}),(b:Cities {{name: '{cidade['name']}'}}) CREATE(a)-[:ADDR_IN]->(b)")
     medir_tempo_stop(step, t, n_e)
     
+    
     # roles
     step = "roles"
     t = medir_tempo_start(step)

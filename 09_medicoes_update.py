@@ -17,7 +17,7 @@ def main():
     n_e = 0
     for addr in enderecos:
         n_e += 1
-        graph.run(f"MATCH (n: Address {{name: '{addr}'}}) DETACH DELETE n")
+        graph.run(f"MATCH (n: Address {{name: '{addr}'}}) SET n.nr='0' RETURN n")
     medir_tempo_stop(step, t, n_e)
     
     step = "utilizadores"
@@ -25,7 +25,7 @@ def main():
     n_e = 0
     for user in users:
         n_e += 1
-        graph.run(f"MATCH (n: User {{name: '{user}'}}) DETACH DELETE n")
+        graph.run(f"MATCH (n: User {{name: '{user}'}}) SET n.enabled=false RETURN n")
     
     medir_tempo_stop(step, t, n_e)
 
