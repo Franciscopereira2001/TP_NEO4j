@@ -110,7 +110,7 @@ def main():
         graph.run(f"MATCH (a:User {{username: '{user}'}}),(b:Role {{name: '{role}'}}) CREATE(a)-[:ROLE_IN]->(b)")
     medir_tempo_stop(step, t, n_e)
     
-    return
+    
     # Parks
     step = "Parks"
     t = medir_tempo_start(step)
